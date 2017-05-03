@@ -1,4 +1,4 @@
-from flask import Flask,send_file
+from flask import Flask,send_file,request
 from elasticsearch import Elasticsearch
 import csv
 import time
@@ -6,18 +6,19 @@ app = Flask(__name__)
 
 @app.route('/getCSV')
 def getCSVfile():
-    filename = createCSV()
+    keyword = request.args.get('keyword')
+    filename = createCSV(keyword)
     return send_file(filename,
                      mimetype='text/csv',
                      attachment_filename=filename,
                      as_attachment=True)
 
-def createCSV():
+def createCSV(keyword):
     es = Elasticsearch()
-    res = es.search(index="tweetstream", doc_type="tweet", body={"query": {"match": {"message": "india"}}}, size=1000, from_=0)
+    res = es.search(index="tweetstream", doc_type="tweet", body={"query": {"match": {"message": keyword}}}, size=1000, from_=0)
     print("%d tweets found\n" % res['hits']['total'])
 
-    filename = "india" + str(time.time()) + ".csv";
+    filename = keyword + str(time.time()) + ".csv";
     with open(filename, 'w') as csvfile:
         fieldnames = ['Author', 'Date', 'Tweet']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
