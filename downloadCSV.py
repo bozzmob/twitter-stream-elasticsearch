@@ -1,12 +1,10 @@
 from flask import Flask,send_file
-import elasticsearch
 from elasticsearch import Elasticsearch
-import sys
 import csv
 import time
 app = Flask(__name__)
 
-@app.route('/getCSV') # this is a job for GET, not POST
+@app.route('/getCSV')
 def getCSVfile():
     filename = createCSV()
     return send_file(filename,
